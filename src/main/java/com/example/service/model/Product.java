@@ -2,6 +2,8 @@ package com.example.service.model;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -16,6 +18,7 @@ public class Product {
 
     private String series;
 
+    @Column(length = 500)
     private String description;
 
     private int price;
