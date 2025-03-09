@@ -1,10 +1,7 @@
 package com.example.service.service;
 
 import com.example.service.exception.ProductException;
-import com.example.service.model.Cart;
-import com.example.service.model.CartItem;
-import com.example.service.model.Product;
-import com.example.service.model.User;
+import com.example.service.model.*;
 import com.example.service.repository.CartItemRepository;
 import com.example.service.repository.CartRepository;
 import com.example.service.request.AddItemRequest;

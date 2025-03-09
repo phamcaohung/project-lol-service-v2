@@ -2,10 +2,11 @@ package com.example.service.model;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "product")
@@ -15,11 +16,6 @@ public class Product {
     private Long id;
 
     private String title;
-
-    private String series;
-
-    @Column(length = 500)
-    private String description;
 
     private int price;
 
@@ -31,26 +27,11 @@ public class Product {
 
     private int quantity;
 
-    private String tier;
-
-    private String imageTier;
-
     private Date releaseDate;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Color> color = new ArrayList<>();
-
-    @Column(name = "image_url")
-    private String imageUrl;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Rating> ratings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviews = new ArrayList<>();
-
-    @Column(name = "num_ratings")
-    private int numRatings;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_upload_id")
+    private Image imageUpload;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -67,36 +48,41 @@ public class Product {
     @Column(name = "can_be_looted")
     private Boolean canBeLooted;
 
+    @Column(length = 500)
+    private String description;
 
-    public Product(Long id, String title, String series, String description, int price, int discountedPrice,
-                   int discountPercent, int quantity, String tier, String imageTier, List<Color> color,
-                   String imageUrl, List<Rating> ratings, List<Review> reviews, int numRatings, Category category,
-                   LocalDateTime createAt, Date releaseDate, String trailerLink, Boolean inStore, Boolean canBeLooted) {
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Color> color = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "champion_id")
+    private Champion champion;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "skin_id")
+    private Skin skin;
+
+    public Product() {
+    }
+
+    public Product(Long id, String title, int price, int discountedPrice, int discountPercent, int quantity, Date releaseDate, Category category, LocalDateTime createAt, String trailerLink, Boolean inStore, Boolean canBeLooted, String description, List<Color> color, Champion champion, Skin skin, Image imageUpload) {
         this.id = id;
         this.title = title;
-        this.series = series;
-        this.description = description;
         this.price = price;
         this.discountedPrice = discountedPrice;
         this.discountPercent = discountPercent;
         this.quantity = quantity;
-        this.tier = tier;
-        this.imageTier = imageTier;
-        this.color = color;
-        this.imageUrl = imageUrl;
-        this.ratings = ratings;
-        this.reviews = reviews;
-        this.numRatings = numRatings;
+        this.releaseDate = releaseDate;
         this.category = category;
         this.createAt = createAt;
-        this.releaseDate = releaseDate;
         this.trailerLink = trailerLink;
         this.inStore = inStore;
         this.canBeLooted = canBeLooted;
-    }
-
-    public Product() {
-
+        this.description = description;
+        this.color = color;
+        this.champion = champion;
+        this.skin = skin;
+        this.imageUpload = imageUpload;
     }
 
     public Long getId() {
@@ -107,20 +93,12 @@ public class Product {
         this.id = id;
     }
 
-    public String getSeries() {
-        return series;
+    public String getTitle() {
+        return title;
     }
 
-    public void setSeries(String series) {
-        this.series = series;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public int getPrice() {
@@ -155,60 +133,12 @@ public class Product {
         this.quantity = quantity;
     }
 
-    public String getTier() {
-        return tier;
+    public Date getReleaseDate() {
+        return releaseDate;
     }
 
-    public void setTier(String tier) {
-        this.tier = tier;
-    }
-
-    public String getImageTier() {
-        return imageTier;
-    }
-
-    public void setImageTier(String imageTier) {
-        this.imageTier = imageTier;
-    }
-
-    public List<Color> getColor() {
-        return color;
-    }
-
-    public void setColor(List<Color> color) {
-        this.color = color;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public List<Rating> getRatings() {
-        return ratings;
-    }
-
-    public void setRatings(List<Rating> ratings) {
-        this.ratings = ratings;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
-    }
-
-    public int getNumRatings() {
-        return numRatings;
-    }
-
-    public void setNumRatings(int numRatings) {
-        this.numRatings = numRatings;
+    public void setReleaseDate(Date releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
     public Category getCategory() {
@@ -225,22 +155,6 @@ public class Product {
 
     public void setCreateAt(LocalDateTime createAt) {
         this.createAt = createAt;
-    }
-
-    public Date getReleaseDate() {
-        return releaseDate;
-    }
-
-    public void setReleaseDate(Date releaseDate) {
-        this.releaseDate = releaseDate;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getTrailerLink() {
@@ -265,5 +179,46 @@ public class Product {
 
     public void setCanBeLooted(Boolean canBeLooted) {
         this.canBeLooted = canBeLooted;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<Color> getColor() {
+        return color;
+    }
+
+    public void setColor(List<Color> color) {
+        this.color = color;
+
+    }
+
+    public Champion getChampion() {
+        return champion;
+    }
+
+    public void setChampion(Champion champion) {
+        this.champion = champion;
+    }
+
+    public Skin getSkin() {
+        return skin;
+    }
+
+    public void setSkin(Skin skin) {
+        this.skin = skin;
+    }
+
+    public Image getImageUpload() {
+        return imageUpload;
+    }
+
+    public void setImageUpload(Image imageUpload) {
+        this.imageUpload = imageUpload;
     }
 }

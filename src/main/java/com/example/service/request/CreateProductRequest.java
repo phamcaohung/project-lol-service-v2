@@ -1,6 +1,9 @@
 package com.example.service.request;
 
+import com.example.service.model.Champion;
 import com.example.service.model.Color;
+import com.example.service.model.Skill;
+import com.example.service.model.Skin;
 
 import java.util.Date;
 import java.util.List;
@@ -8,21 +11,11 @@ import java.util.List;
 public class CreateProductRequest {
     private String title;
 
-    private String series;
-
     private String description;
 
     private int price;
 
     private int discountPercent;
-
-    private String tier;
-
-    private String imageTier;
-
-    private List<Color> color;
-
-    private String imageUrl;
 
     private String category;
 
@@ -34,13 +27,12 @@ public class CreateProductRequest {
 
     private Boolean canBeLooted;
 
-    public String getSeries() {
-        return series;
-    }
+    private List<Color> color;
 
-    public void setSeries(String series) {
-        this.series = series;
-    }
+    private Champion champion;
+
+    private Skin skin;
+
 
     public String getDescription() {
         return description;
@@ -64,38 +56,6 @@ public class CreateProductRequest {
 
     public void setDiscountPercent(int discountPercent) {
         this.discountPercent = discountPercent;
-    }
-
-    public String getTier() {
-        return tier;
-    }
-
-    public void setTier(String tier) {
-        this.tier = tier;
-    }
-
-    public String getImageTier() {
-        return imageTier;
-    }
-
-    public void setImageTier(String imageTier) {
-        this.imageTier = imageTier;
-    }
-
-    public List<Color> getColor() {
-        return color;
-    }
-
-    public void setColor(List<Color> color) {
-        this.color = color;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public String getCategory() {
@@ -144,5 +104,29 @@ public class CreateProductRequest {
 
     public void setCanBeLooted(Boolean canBeLooted) {
         this.canBeLooted = canBeLooted;
+    }
+
+    public List<Color> getColor() {
+        return color;
+    }
+
+    public void setColor(List<Color> color) {
+        this.color = color;
+    }
+
+    public Champion getChampion() {
+        return champion;
+    }
+
+    public void setChampion(Champion champion) {
+        this.champion = champion;
+    }
+
+    public Skin getSkin() {
+        return skin;
+    }
+
+    public void setSkin(Skin skin) {
+        this.skin = skin;
     }
 }

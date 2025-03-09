@@ -10,42 +10,58 @@ public class Color {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String image;
+
     private String name;
 
     private int quantity;
 
-    private String image;
-
     @Column(name = "in_stock")
     private Boolean inStock;
 
+    private String color;
+
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "product_id")
-    @JsonIgnore
     private Product product;
-
-    private String color;
 
     public Color() {
 
     }
 
-    public Color(Long id, String name, int quantity, String image, Boolean inStock, Product product, String color) {
+    public Color(Long id, String name, int quantity, String image, Boolean inStock, String color, Product product) {
         this.id = id;
         this.name = name;
         this.quantity = quantity;
         this.image = image;
         this.inStock = inStock;
-        this.product = product;
         this.color = color;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public Boolean getInStock() {
+        return inStock;
+    }
+
+    public void setInStock(Boolean inStock) {
+        this.inStock = inStock;
     }
 
     public String getName() {
@@ -65,22 +81,6 @@ public class Color {
         this.updateInStock();
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public Boolean getInStock() {
-        return inStock;
-    }
-
-    public void setInStock(Boolean inStock) {
-        this.inStock = inStock;
-    }
-
     public String getColor() {
         return color;
     }
@@ -89,15 +89,15 @@ public class Color {
         this.color = color;
     }
 
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
     public void updateInStock() {
         inStock = quantity > 0;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 }

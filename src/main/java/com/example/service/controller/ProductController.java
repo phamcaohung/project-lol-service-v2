@@ -1,15 +1,13 @@
 package com.example.service.controller;
 
 import com.example.service.controller.interfaces.IProductController;
-import com.example.service.dto.ProductCarousel;
+import com.example.service.dto.ProductCarouselSeriesDTO;
 import com.example.service.dto.ProductDTO;
 import com.example.service.dto.ProductSeries;
 import com.example.service.exception.ProductException;
-import com.example.service.mapper.ProductCarouselMapper;
-import com.example.service.mapper.ProductMapper;
+import com.example.service.mapper.ProductCarouselSeriesMapper;
 import com.example.service.mapper.ProductSeriesMapper;
 import com.example.service.model.Product;
-import com.example.service.response.SeriesResponse;
 import com.example.service.service.implementation.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -47,13 +45,19 @@ public class ProductController implements IProductController {
     }
 
     @Override
-    public List<ProductCarousel> findProductBySeries(String series) throws ProductException {
+    public List<ProductCarouselSeriesDTO> findProductBySeries(String series) throws ProductException {
         List<Product> products = productService.findProductBySeries(series);
-        return ProductCarouselMapper.INSTANCE.mapList(products);
+        return ProductCarouselSeriesMapper.INSTANCE.mapList(products);
     }
 
     @Override
-    public List<String> getAllSeries() throws ProductException {
-        return productService.findAllSeriesName();
+    public List<String> getAllSeriesName(String category) throws ProductException {
+        return productService.findAllSeriesName(category);
+    }
+
+    @Override
+    public List<ProductSeries> getNewSkinProduct(String category) throws ProductException {
+        List<Product> products = productService.findNewSkinProduct(category);
+        return ProductSeriesMapper.INSTANCE.mapList(products);
     }
 }

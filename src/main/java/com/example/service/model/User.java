@@ -30,21 +30,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Address> address = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Rating> ratings = new ArrayList<>();
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Review> reviews = new ArrayList<>();
-
     private LocalDateTime createdAt;
 
     public User() {
 
     }
 
-    public User(Long id, String firstName, String lastName, String password, String email, String role, String mobile, List<Address> address, List<Rating> ratings, List<Review> reviews, LocalDateTime createdAt) {
+    public User(Long id, String firstName, String lastName, String password, String email, String role, String mobile, List<Address> address, LocalDateTime createdAt) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -53,8 +45,6 @@ public class User {
         this.role = role;
         this.mobile = mobile;
         this.address = address;
-        this.ratings = ratings;
-        this.reviews = reviews;
         this.createdAt = createdAt;
     }
 
@@ -120,22 +110,6 @@ public class User {
 
     public void setAddress(List<Address> address) {
         this.address = address;
-    }
-
-    public List<Rating> getRatings() {
-        return ratings;
-    }
-
-    public void setRatings(List<Rating> ratings) {
-        this.ratings = ratings;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
     }
 
     public LocalDateTime getCreatedAt() {

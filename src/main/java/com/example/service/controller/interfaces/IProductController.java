@@ -1,12 +1,11 @@
 package com.example.service.controller.interfaces;
 
 
-import com.example.service.dto.ProductCarousel;
+import com.example.service.dto.ProductCarouselSeriesDTO;
 import com.example.service.dto.ProductDTO;
 import com.example.service.dto.ProductSeries;
 import com.example.service.exception.ProductException;
 import com.example.service.model.Product;
-import com.example.service.response.SeriesResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +28,12 @@ public interface IProductController {
     List<ProductSeries> findProductBySeriesAndIdNot(@RequestParam String series, @RequestParam Long id) throws ProductException;
 
     @GetMapping("/carousel")
-    List<ProductCarousel> findProductBySeries(@RequestParam String series) throws ProductException;
+    List<ProductCarouselSeriesDTO> findProductBySeries(@RequestParam String series) throws ProductException;
 
     @GetMapping("/series/all")
-    List<String> getAllSeries() throws ProductException;
+    List<String> getAllSeriesName(@RequestParam String category) throws ProductException;
+
+    @GetMapping("/new")
+    List<ProductSeries> getNewSkinProduct(@RequestParam String category) throws ProductException;
 }
 

@@ -48,7 +48,6 @@ public class OrderItem {
         this.discountedPrice = discountedPrice;
         this.userId = userId;
         this.deliveryDate = deliveryDate;
-        this.imageColor = imageColor;
     }
 
     public Long getId() {

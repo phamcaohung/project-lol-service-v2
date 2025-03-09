@@ -3,14 +3,10 @@ package com.example.service.service;
 import com.example.service.dto.ProductDTO;
 import com.example.service.exception.ProductException;
 import com.example.service.mapper.ProductMapper;
-import com.example.service.model.Category;
-import com.example.service.model.Color;
-import com.example.service.model.Product;
-import com.example.service.repository.CategoryRepository;
-import com.example.service.repository.ProductRepository;
-import com.example.service.request.CreateProductRequest;
-import com.example.service.request.UpdateProductRequest;
-import com.example.service.response.SeriesResponse;
+import com.example.service.model.*;
+import com.example.service.repository.*;
+import com.example.service.request.*;
+import com.example.service.service.implementation.FileUploadService;
 import com.example.service.service.implementation.ProductService;
 import com.example.service.service.implementation.UserService;
 import org.springframework.data.domain.Page;
@@ -18,28 +14,44 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductImplementation implements ProductService {
 
     private ProductRepository productRepository;
+    private ChampionRepository championRepository;
+    private SkinRepository skinRepository;
+    private ColorRepository colorRepository;
     private UserService userService;
+    private FileUploadService fileUploadService;
     private CategoryRepository categoryRepository;
 
-    public ProductImplementation(ProductRepository productRepository,
-                                 UserService userService,
-                                 CategoryRepository categoryRepository) {
+    public ProductImplementation(ProductRepository productRepository, ColorRepository colorRepository,
+                                 UserService userService, CategoryRepository categoryRepository,
+                                 ChampionRepository championRepository, SkinRepository skinRepository,
+                                 FileUploadService fileUploadService) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.userService = userService;
+        this.championRepository = championRepository;
+        this.skinRepository = skinRepository;
+        this.colorRepository = colorRepository;
+        this.fileUploadService = fileUploadService;
     }
     @Override
-    public Product createProduct(CreateProductRequest req) {
+    @Transactional
+    public Product createProduct(CreateProductRequest req, MultipartFile imageFile) throws IOException, SQLException {
         Category category = categoryRepository.findByName(req.getCategory());
 
         if (category == null) {
@@ -49,30 +61,36 @@ public class ProductImplementation implements ProductService {
             category = categoryRepository.save(level);
         }
 
+        Image image = fileUploadService.storeFileUploadIntoFileSystem(imageFile);
 
         Product product = new Product();
+        product.setImageUpload(image);
         product.setTitle(req.getTitle());
-        product.setTier(req.getTier());
-        product.setImageTier(req.getImageTier());
         product.setDescription(req.getDescription());
         product.setDiscountedPrice((int) (req.getPrice() - (req.getPrice() * ((float) req.getDiscountPercent()) /100 )));
         product.setDiscountPercent(req.getDiscountPercent());
-        product.setImageUrl(req.getImageUrl());
-        product.setSeries(req.getSeries());
         product.setPrice(req.getPrice());
         product.setReleaseDate(req.getReleaseDate());
         product.setCanBeLooted(req.getCanBeLooted());
         product.setInStore(req.getInStore());
         product.setTrailerLink(req.getTrailerLink());
+
         int quantity = 0;
-        for (Color e :req.getColor()) {
-            e.setProduct(product);
-            product.getColor().add(e);
-            quantity += e.getQuantity();
+//        List<Color> colors = new ArrayList<>();
+//        for (int i = 0; i < colorRequest.length; i++) {
+//            quantity += colorRequest[i].getQuantity();
+//            colors.add(createImageFileColor(colorRequest[i], colorImage[i]));
+//        }
+
+        for(Color color: req.getColor()) {
+            quantity += color.getQuantity();
         }
+        product.setColor(req.getColor());
+
         product.setQuantity(quantity);
         product.setCategory(category);
         product.setCreateAt(LocalDateTime.now());
+        productIsSkinOrChampion(req.getChampion(), req.getSkin(), product);
 
         System.out.println("Create Product Successfully");
 
@@ -82,33 +100,47 @@ public class ProductImplementation implements ProductService {
     @Override
     public String deleteProduct(Long productId) throws ProductException {
         Product product = findProductById(productId);
-        product.getColor().clear();
         productRepository.delete(product);
+        product.getColor().clear();
+        if (product.getCategory().getName().equals("skin")) {
+            Skin skin = skinRepository.findSkinById(product.getSkin().getId());
+            skinRepository.delete(skin);
+        } else if (product.getCategory().getName().equals("champion")) {
+            Champion champion = championRepository.findChampionById(product.getChampion().getId());
+            championRepository.delete(champion);
+            product.getChampion().getSkill().clear();
+        }
+
         return "Product Deleted Successfully";
     }
 
     @Override
-    public Product updateProduct(Long productId, UpdateProductRequest req) throws ProductException {
+    @Transactional
+    public Product updateProduct(Long productId, UpdateProductRequest req, MultipartFile imageFile) throws ProductException, IOException {
         Product product = findProductById(productId);
 
+        if(product.getImageUpload() == null) {
+            Image image = fileUploadService.storeFileUploadIntoFileSystem(imageFile);
+            product.setImageUpload(image);
+        }
+        else if(!product.getImageUpload().getName().equals(imageFile.getOriginalFilename())) {
+            Image image = fileUploadService.storeFileUploadIntoFileSystem(imageFile);
+            product.setImageUpload(image);
+        }
+
         product.setTitle(req.getTitle());
-        product.setTier(req.getTier());
-        product.setImageTier(req.getImageTier());
+        product.setSkin(req.getSkin());
+        product.setChampion(req.getChampion());
         product.setDescription(req.getDescription());
         product.setDiscountedPrice((int) (req.getPrice() - (req.getPrice() * ((float) req.getDiscountPercent()) /100 )));
         product.setDiscountPercent(req.getDiscountPercent());
-        product.setImageUrl(req.getImageUrl());
-        product.setSeries(req.getSeries());
         product.setPrice(req.getPrice());
         product.setReleaseDate(req.getReleaseDate());
         product.setCanBeLooted(req.getCanBeLooted());
         product.setInStore(req.getInStore());
         product.setTrailerLink(req.getTrailerLink());
-        product.setColor(req.getColor());
-        int quantity = 0;
-        for (Color e :req.getColor()) {
-            quantity += e.getQuantity();
-        }
+        updateColorList(req.getColor(), product);
+        int quantity = product.getColor().stream().mapToInt(Color::getQuantity).sum();
         product.setQuantity(quantity);
 
         System.out.println("Update Product Successfully");
@@ -141,7 +173,7 @@ public class ProductImplementation implements ProductService {
                                                                     minDiscount, sort, name, series);
 
         if (!tier.isEmpty()) {
-            products = products.stream().filter(p -> tier.stream().anyMatch(c -> c.equalsIgnoreCase(p.getTier())))
+            products = products.stream().filter(p -> tier.stream().anyMatch(c -> c.equalsIgnoreCase(p.getSkin().getTier())))
                     .collect(Collectors.toList());
         }
         if (stock != null) {
@@ -172,21 +204,94 @@ public class ProductImplementation implements ProductService {
 
     @Override
     public List<Product> findProductBySeriesAndIdNot(String series, Long id) throws ProductException{
-        return productRepository.findProductBySeriesAndIdNot(series, id);
+        return productRepository.findProductBySkin_SeriesAndIdNot(series, id);
     }
 
     @Override
     public List<Product> findProductBySeries(String series) throws ProductException {
-        return productRepository.findProductBySeries(series);
+        return productRepository.findProductBySkin_Series(series);
     }
 
     @Override
-    public List<String> findAllSeriesName() throws ProductException {
-        List<Product> products = productRepository.findAll();
-        return products.stream()
-                .map(Product::getSeries)
+    public List<String> findAllSeriesName(String series) throws ProductException {
+//        List<Product> products = productRepository.findProductByCategoryName(category);
+//        return products.stream()
+//                .map(Product::)
+//                .distinct()
+//                .sorted()
+//                .collect(Collectors.toList());
+        List<Skin> skins = skinRepository.findSkinBySeries(series);
+        return skins.stream()
+                .map(Skin::getSeries)
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Product> findNewSkinProduct(String category) throws ProductException {
+        return productRepository.findTop12ProductByCategoryNameOrderByReleaseDateDesc(category);
+    }
+
+    @Override
+    public Product updateImageFileProduct(Long productId, MultipartFile file) throws ProductException, IOException {
+        Product product = findProductById(productId);
+        Image image = fileUploadService.storeFileUploadIntoFileSystem(file);
+        product.setImageUpload(image);
+
+        System.out.println("Update Image File Product Successfully");
+        return productRepository.save(product);
+    }
+
+    public void productIsSkinOrChampion(Champion requestChampion, Skin requestSkin, Product product) {
+        if (requestSkin != null) {
+            Skin skin = new Skin();
+            skin.setTier(requestSkin.getTier());
+            skin.setImageTier(requestSkin.getImageTier());
+            skin.setSeries(requestSkin.getSeries());
+            skinRepository.save(skin);
+            product.setSkin(skin);
+        }
+
+        if (requestChampion.getDifficulty() != null) {
+            Champion champion = new Champion();
+            champion.setRole(requestChampion.getRole());
+            champion.setDifficulty(requestChampion.getDifficulty());
+            for (Skill e :requestChampion.getSkill())
+                e.setChampion(champion);
+            champion.setSkill(requestChampion.getSkill());
+            championRepository.save(champion);
+            product.setChampion(champion);
+        }
+    }
+
+    public void updateColorList(List<Color> colorUpdate, Product product) {
+        Map<Long, Color> colorMap = product.getColor()
+                                    .stream()
+                                    .collect(Collectors.toMap(Color :: getId, Function.identity()));
+        List<Color> toSave = new ArrayList<>();
+        for(Color e : colorUpdate) {
+            if(colorMap.containsKey(e.getId())) {
+                Color oldColor = colorMap.get(e.getId());
+                oldColor.setImage(e.getImage());
+                oldColor.setName(e.getName());
+                oldColor.setColor(e.getColor());
+                oldColor.setQuantity(e.getQuantity());
+
+                toSave.add(oldColor);
+            }
+            else {
+                Color newColor = new Color();
+                newColor.setImage(e.getImage());
+                newColor.setProduct(product);
+                newColor.setName(e.getName());
+                newColor.setColor(e.getColor());
+                newColor.setQuantity(e.getQuantity());
+
+                product.getColor().add(newColor);
+                toSave.add(newColor);
+            }
+        }
+        colorRepository.saveAll(toSave);
     }
 }

@@ -1,13 +1,11 @@
 package com.example.service.mapper;
 
 
-import com.example.service.dto.ProductCarousel;
-import com.example.service.dto.ProductCart;
 import com.example.service.dto.ProductDTO;
 import com.example.service.model.Product;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -15,6 +13,8 @@ import java.util.List;
 public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
+    @Mapping(source = "skin.imageTier", target = "imageTier")
+    @Mapping(source = "imageUpload.url", target = "imageUrl")
     ProductDTO map(Product product);
 
     List<ProductDTO> mapList(List<Product> products);
