@@ -33,14 +33,17 @@ public class ProductImplementation implements ProductService {
     private ChampionRepository championRepository;
     private SkinRepository skinRepository;
     private ColorRepository colorRepository;
+    private SkillRepository skillRepository;
     private UserService userService;
     private FileUploadService fileUploadService;
     private CategoryRepository categoryRepository;
+    private ChibiRepository chibiRepository;
 
     public ProductImplementation(ProductRepository productRepository, ColorRepository colorRepository,
                                  UserService userService, CategoryRepository categoryRepository,
                                  ChampionRepository championRepository, SkinRepository skinRepository,
-                                 FileUploadService fileUploadService) {
+                                 FileUploadService fileUploadService, SkillRepository skillRepository,
+                                 ChibiRepository chibiRepository) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.userService = userService;
@@ -48,6 +51,8 @@ public class ProductImplementation implements ProductService {
         this.skinRepository = skinRepository;
         this.colorRepository = colorRepository;
         this.fileUploadService = fileUploadService;
+        this.skillRepository = skillRepository;
+        this.chibiRepository = chibiRepository;
     }
     @Override
     @Transactional
@@ -61,7 +66,7 @@ public class ProductImplementation implements ProductService {
             category = categoryRepository.save(level);
         }
 
-        Image image = fileUploadService.storeFileUploadIntoFileSystem(imageFile);
+        Image image = fileUploadService.storeImageUploadIntoFileSystem(imageFile, category);
 
         Product product = new Product();
         product.setImageUpload(image);
@@ -74,24 +79,20 @@ public class ProductImplementation implements ProductService {
         product.setCanBeLooted(req.getCanBeLooted());
         product.setInStore(req.getInStore());
         product.setTrailerLink(req.getTrailerLink());
-
+        product.setColor(req.getColor());
         int quantity = 0;
-//        List<Color> colors = new ArrayList<>();
-//        for (int i = 0; i < colorRequest.length; i++) {
-//            quantity += colorRequest[i].getQuantity();
-//            colors.add(createImageFileColor(colorRequest[i], colorImage[i]));
-//        }
-
         for(Color color: req.getColor()) {
             quantity += color.getQuantity();
+            color.setProduct(product);
         }
-        product.setColor(req.getColor());
-
         product.setQuantity(quantity);
         product.setCategory(category);
         product.setCreateAt(LocalDateTime.now());
-        productIsSkinOrChampion(req.getChampion(), req.getSkin(), product);
-
+        switch (req.getCategory()) {
+            case "skin" -> productIsSkin(req.getSkin(), product);
+            case "champion" -> productIsChampion(req.getChampion(), product);
+            case "chibi" -> productIsChibi(req.getChibi(), product);
+        }
         System.out.println("Create Product Successfully");
 
         return productRepository.save(product);
@@ -101,15 +102,6 @@ public class ProductImplementation implements ProductService {
     public String deleteProduct(Long productId) throws ProductException {
         Product product = findProductById(productId);
         productRepository.delete(product);
-        product.getColor().clear();
-        if (product.getCategory().getName().equals("skin")) {
-            Skin skin = skinRepository.findSkinById(product.getSkin().getId());
-            skinRepository.delete(skin);
-        } else if (product.getCategory().getName().equals("champion")) {
-            Champion champion = championRepository.findChampionById(product.getChampion().getId());
-            championRepository.delete(champion);
-            product.getChampion().getSkill().clear();
-        }
 
         return "Product Deleted Successfully";
     }
@@ -120,17 +112,15 @@ public class ProductImplementation implements ProductService {
         Product product = findProductById(productId);
 
         if(product.getImageUpload() == null) {
-            Image image = fileUploadService.storeFileUploadIntoFileSystem(imageFile);
+            Image image = fileUploadService.storeImageUploadIntoFileSystem(imageFile, product.getCategory());
             product.setImageUpload(image);
         }
         else if(!product.getImageUpload().getName().equals(imageFile.getOriginalFilename())) {
-            Image image = fileUploadService.storeFileUploadIntoFileSystem(imageFile);
+            Image image = fileUploadService.storeImageUploadIntoFileSystem(imageFile, product.getCategory());
             product.setImageUpload(image);
         }
 
         product.setTitle(req.getTitle());
-        product.setSkin(req.getSkin());
-        product.setChampion(req.getChampion());
         product.setDescription(req.getDescription());
         product.setDiscountedPrice((int) (req.getPrice() - (req.getPrice() * ((float) req.getDiscountPercent()) /100 )));
         product.setDiscountPercent(req.getDiscountPercent());
@@ -139,9 +129,14 @@ public class ProductImplementation implements ProductService {
         product.setCanBeLooted(req.getCanBeLooted());
         product.setInStore(req.getInStore());
         product.setTrailerLink(req.getTrailerLink());
-        updateColorList(req.getColor(), product);
+        handleColorList(req.getColor(), product);
         int quantity = product.getColor().stream().mapToInt(Color::getQuantity).sum();
         product.setQuantity(quantity);
+        switch (req.getCategory()) {
+            case "skin" -> productIsSkin(req.getSkin(), product);
+            case "champion" -> productIsChampion(req.getChampion(), product);
+            case "chibi" -> productIsChibi(req.getChibi(), product);
+        }
 
         System.out.println("Update Product Successfully");
 
@@ -160,27 +155,30 @@ public class ProductImplementation implements ProductService {
     }
 
     @Override
-    public List<Product> findProductByCategory(String category) {
-        return null;
-    }
-
-    @Override
-    public Page<ProductDTO> getAllProduct(String category, List<String> tier, Integer minPrice, Integer maxPrice,
-                                          Integer minDiscount, String sort, String name, String series,
-                                          String stock, Integer pageNumber, Integer pageSize) {
-        Pageable pageble = PageRequest.of(pageNumber, pageSize);
-        List<Product> products = productRepository.filterProducts(category, minPrice, maxPrice,
-                                                                    minDiscount, sort, name, series);
-
-        if (!tier.isEmpty()) {
-            products = products.stream().filter(p -> tier.stream().anyMatch(c -> c.equalsIgnoreCase(p.getSkin().getTier())))
+    public Page<ProductDTO> getAllProduct(FilterProductRequest request) {
+        Pageable pageble = PageRequest.of(request.getPageNumber(), request.getPageSize());
+        List<Product> products = productRepository.filterProducts(request.getCategory(), request.getMinPrice(),
+                                                                  request.getMaxPrice(), request.getMinDiscount(),
+                                                                  request.getSort(), request.getTitle(),
+                                                                  request.getSkin().getSeries(), request.getChibi().getChampion(),
+                                                                  request.getChampion().getRegion(), request.getChampion().getRole());
+        if (!request.getSkin().getTier().isEmpty()) {
+            products = products.stream()
+                    .filter(p -> p.getSkin().getTier().equals(request.getSkin().getTier()))
                     .collect(Collectors.toList());
         }
-        if (stock != null) {
-            if (stock.equals("in_stock")) {
+
+        if (!request.getChibi().getTier().isEmpty()) {
+            products = products.stream()
+                    .filter(p -> p.getChibi().getTier().equals(request.getChibi().getTier()))
+                    .collect(Collectors.toList());
+        }
+
+        if (request.getStock() != null) {
+            if (request.getStock().equals("in_stock")) {
                 products = products.stream().filter(p -> p.getQuantity() > 0).collect(Collectors.toList());
             }
-            else if (stock.equals("out_of_stock")) {
+            else if (request.getStock().equals("out_of_stock")) {
                 products = products.stream().filter(p -> p.getQuantity() < 1).collect(Collectors.toList());
             }
         }
@@ -198,13 +196,18 @@ public class ProductImplementation implements ProductService {
     }
 
     @Override
-    public List<Product> findAllProduct() {
-        return productRepository.findAll();
+    public List<Product> findSkinProductBySeriesAndIdNot(String series, Long id) throws ProductException{
+        return productRepository.findProductBySkin_SeriesAndIdNot(series, id);
     }
 
     @Override
-    public List<Product> findProductBySeriesAndIdNot(String series, Long id) throws ProductException{
-        return productRepository.findProductBySkin_SeriesAndIdNot(series, id);
+    public List<Product> findChampionProductBySeriesAndIdNot(String region, Long id) throws ProductException{
+        return productRepository.findProductByChampion_RegionAndIdNot(region, id);
+    }
+
+    @Override
+    public List<Product> findChibiProductBySeriesAndIdNot(String champion, Long id) throws ProductException{
+        return productRepository.findProductByChibi_ChampionAndIdNot(champion, id);
     }
 
     @Override
@@ -213,19 +216,16 @@ public class ProductImplementation implements ProductService {
     }
 
     @Override
-    public List<String> findAllSeriesName(String series) throws ProductException {
-//        List<Product> products = productRepository.findProductByCategoryName(category);
-//        return products.stream()
-//                .map(Product::)
-//                .distinct()
-//                .sorted()
-//                .collect(Collectors.toList());
-        List<Skin> skins = skinRepository.findSkinBySeries(series);
-        return skins.stream()
-                .map(Skin::getSeries)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+    public List<String> findAllSeriesName(String category) throws ProductException {
+        switch (category) {
+            case "skin" -> {
+                return skinRepository.findDistinctSeries();
+            }
+            case "chibi" -> {
+                return chibiRepository.findDistinctChampion();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -233,39 +233,7 @@ public class ProductImplementation implements ProductService {
         return productRepository.findTop12ProductByCategoryNameOrderByReleaseDateDesc(category);
     }
 
-    @Override
-    public Product updateImageFileProduct(Long productId, MultipartFile file) throws ProductException, IOException {
-        Product product = findProductById(productId);
-        Image image = fileUploadService.storeFileUploadIntoFileSystem(file);
-        product.setImageUpload(image);
-
-        System.out.println("Update Image File Product Successfully");
-        return productRepository.save(product);
-    }
-
-    public void productIsSkinOrChampion(Champion requestChampion, Skin requestSkin, Product product) {
-        if (requestSkin != null) {
-            Skin skin = new Skin();
-            skin.setTier(requestSkin.getTier());
-            skin.setImageTier(requestSkin.getImageTier());
-            skin.setSeries(requestSkin.getSeries());
-            skinRepository.save(skin);
-            product.setSkin(skin);
-        }
-
-        if (requestChampion.getDifficulty() != null) {
-            Champion champion = new Champion();
-            champion.setRole(requestChampion.getRole());
-            champion.setDifficulty(requestChampion.getDifficulty());
-            for (Skill e :requestChampion.getSkill())
-                e.setChampion(champion);
-            champion.setSkill(requestChampion.getSkill());
-            championRepository.save(champion);
-            product.setChampion(champion);
-        }
-    }
-
-    public void updateColorList(List<Color> colorUpdate, Product product) {
+    public void handleColorList(List<Color> colorUpdate, Product product) {
         Map<Long, Color> colorMap = product.getColor()
                                     .stream()
                                     .collect(Collectors.toMap(Color :: getId, Function.identity()));
@@ -293,5 +261,51 @@ public class ProductImplementation implements ProductService {
             }
         }
         colorRepository.saveAll(toSave);
+    }
+
+    private void productIsChibi(Chibi chibiRequest, Product product) {
+        Chibi chibi = product.getChibi();
+        if (chibi == null) {
+            chibi = new Chibi();
+            product.setChibi(chibi);
+        }
+        chibi.setTier(chibiRequest.getTier());
+        chibi.setImageTier(chibiRequest.getImageTier());
+        chibi.setChampion(chibiRequest.getChampion());
+        chibiRepository.save(chibi);
+    }
+
+    private void productIsChampion(Champion championRequest, Product product) {
+        Champion champion = product.getChampion();
+        if (champion == null) {
+            champion = new Champion();
+            product.setChampion(champion);
+        }
+        champion.setRole(championRequest.getRole());
+        champion.setImageRole(championRequest.getImageRole());
+        champion.setRegion(championRequest.getRegion());
+        champion.setImageRegion(championRequest.getImageRegion());
+        champion.setDifficulty(championRequest.getDifficulty());
+        List<Skill> skills = championRequest.getSkill();
+        if (skills != null) {
+            for (Skill e : championRequest.getSkill()) {
+                e.setChampion(champion);
+                skillRepository.save(e);
+            }
+            champion.setSkill(skills);
+        }
+        championRepository.save(champion);
+    }
+
+    private void productIsSkin(Skin skinRequest, Product product) {
+        Skin skin = product.getSkin();
+        if (skin == null) {
+            skin = new Skin();
+            product.setSkin(skin);
+        }
+        skin.setTier(skinRequest.getTier());
+        skin.setImageTier(skinRequest.getImageTier());
+        skin.setSeries(skinRequest.getSeries());
+        skinRepository.save(skin);
     }
 }

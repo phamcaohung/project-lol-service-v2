@@ -1,14 +1,19 @@
 package com.example.service.dto;
 
+import com.example.service.model.Champion;
 import com.example.service.model.Color;
 
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class ProductDTO {
     private Long id;
 
     private String imageUrl;
+
+    private String imageColor;
 
     private String imageTier;
 
@@ -22,9 +27,19 @@ public class ProductDTO {
 
     private int discountedPrice;
 
+    private Date releaseDate;
+
     private String series;
 
-    private Set<Color> color = new HashSet<>();
+    private String role;
+
+    private String imageRole;
+
+    private String region;
+
+    private String imageRegion;
+
+    private List<String> colors;
 
     public ProductDTO() {
 
@@ -94,19 +109,67 @@ public class ProductDTO {
         this.discountedPrice = discountedPrice;
     }
 
-    public Set<Color> getColor() {
-        return color;
-    }
-
-    public void setColor(Set<Color> color) {
-        this.color = color;
-    }
-
     public String getSeries() {
         return series;
     }
 
     public void setSeries(String series) {
         this.series = series;
+    }
+
+    public String getImageColor() {
+        return imageColor;
+    }
+
+    public void setImageColor(String imageColor) {
+        this.imageColor = imageColor;
+    }
+
+    public Date getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(Date releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getImageRole() {
+        return imageRole;
+    }
+
+    public void setImageRole(String imageRole) {
+        this.imageRole = imageRole;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getImageRegion() {
+        return imageRegion;
+    }
+
+    public void setImageRegion(String imageRegion) {
+        this.imageRegion = imageRegion;
+    }
+
+    public List<String> getColors() {
+        return colors;
+    }
+
+    public void setColors(List<String> colors) {
+        this.colors = colors;
     }
 }

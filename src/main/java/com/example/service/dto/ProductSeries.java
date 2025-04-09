@@ -1,15 +1,13 @@
 package com.example.service.dto;
 
-import com.example.service.model.Color;
-
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ProductSeries {
     private Long id;
 
     private String imageUrl;
+
+    private String imageColor;
 
     private String imageTier;
 
@@ -20,8 +18,6 @@ public class ProductSeries {
     private String series;
 
     private Date ReleaseDate;
-
-    private Set<Color> color = new HashSet<>();
 
     public ProductSeries() {
 
@@ -83,11 +79,11 @@ public class ProductSeries {
         ReleaseDate = releaseDate;
     }
 
-    public Set<Color> getColor() {
-        return color;
+    public String getImageColor() {
+        return imageColor;
     }
 
-    public void setColor(Set<Color> color) {
-        this.color = color;
+    public void setImageColor(String imageColor) {
+        this.imageColor = imageColor;
     }
 }

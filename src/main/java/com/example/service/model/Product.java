@@ -2,11 +2,15 @@ package com.example.service.model;
 
 
 import jakarta.persistence.*;
+import org.mapstruct.Named;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 @Table(name = "product")
@@ -62,10 +66,17 @@ public class Product {
     @JoinColumn(name = "skin_id")
     private Skin skin;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "chibi_id")
+    private Chibi chibi;
+
     public Product() {
     }
 
-    public Product(Long id, String title, int price, int discountedPrice, int discountPercent, int quantity, Date releaseDate, Category category, LocalDateTime createAt, String trailerLink, Boolean inStore, Boolean canBeLooted, String description, List<Color> color, Champion champion, Skin skin, Image imageUpload) {
+    public Product(Long id, String title, int price, int discountedPrice, int discountPercent, int quantity,
+                   Date releaseDate, Category category, LocalDateTime createAt, String trailerLink,
+                   Boolean inStore, Boolean canBeLooted, String description, List<Color> color,
+                   Champion champion, Skin skin, Image imageUpload, Chibi chibi) {
         this.id = id;
         this.title = title;
         this.price = price;
@@ -83,6 +94,7 @@ public class Product {
         this.champion = champion;
         this.skin = skin;
         this.imageUpload = imageUpload;
+        this.chibi = chibi;
     }
 
     public Long getId() {
@@ -220,5 +232,43 @@ public class Product {
 
     public void setImageUpload(Image imageUpload) {
         this.imageUpload = imageUpload;
+    }
+
+    public Chibi getChibi() {
+        return chibi;
+    }
+
+    public void setChibi(Chibi chibi) {
+        this.chibi = chibi;
+    }
+
+
+    public String mapColorToImageColor() {
+        return color.stream().filter(e -> e.getName().equals("Default"))
+                .map(Color::getImage)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public String mapSourceToSeries() {
+        return Stream.of(skin != null ? skin.getSeries() : null,
+                        chibi != null ? chibi.getChampion() : null)
+                .filter(Objects:: nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public String mapSourceToImageTier() {
+        return Stream.of(skin != null ? skin.getImageTier() : null,
+                        chibi != null ? chibi.getImageTier() : null)
+                .filter(Objects :: nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public List<String> mapColorToListColor() {
+        return color.stream().filter(e -> !e.getName().equals("Default"))
+                .map(Color::getColor)
+                .collect(Collectors.toList());
     }
 }

@@ -6,8 +6,10 @@ import com.example.service.dto.ProductDTO;
 import com.example.service.dto.ProductSeries;
 import com.example.service.exception.ProductException;
 import com.example.service.mapper.ProductCarouselSeriesMapper;
+import com.example.service.mapper.ProductMapper;
 import com.example.service.mapper.ProductSeriesMapper;
 import com.example.service.model.Product;
+import com.example.service.request.FilterProductRequest;
 import com.example.service.service.implementation.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,13 +25,8 @@ public class ProductController implements IProductController {
 
 
     @Override
-    public Page<ProductDTO> findProductByCategory(String category, List<String> tier,
-                                                  Integer minPrice, Integer maxPrice, Integer minDiscount,
-                                                  String sort, String name, String series, String stock,
-                                                  Integer pageNumber, Integer pageSize) {
-        return productService.getAllProduct(category, tier, minPrice, maxPrice,
-                                            minDiscount, sort, name, series, stock,
-                                            pageNumber, pageSize);
+    public Page<ProductDTO> findProductByCategory(FilterProductRequest request) {
+        return productService.getAllProduct(request);
     }
 
     @Override
@@ -38,10 +35,24 @@ public class ProductController implements IProductController {
     }
 
     @Override
-    public List<ProductSeries> findProductBySeriesAndIdNot(String series, Long id) throws ProductException {
+    public List<ProductDTO> findSkinProductBySeriesAndIdNot(String series, Long id) throws ProductException {
         String trimmedSeries = series.trim();
-        List<Product> products =  productService.findProductBySeriesAndIdNot(trimmedSeries, id);
-        return ProductSeriesMapper.INSTANCE.mapList(products);
+        List<Product> products =  productService.findSkinProductBySeriesAndIdNot(trimmedSeries, id);
+        return ProductMapper.INSTANCE.mapList(products);
+    }
+
+    @Override
+    public List<ProductDTO> findChampionProductBySeriesAndIdNot(String region, Long id) throws ProductException {
+        String trimmedRegion = region.trim();
+        List<Product> products =  productService.findChampionProductBySeriesAndIdNot(trimmedRegion, id);
+        return ProductMapper.INSTANCE.mapList(products);
+    }
+
+    @Override
+    public List<ProductDTO> findChibiProductBySeriesAndIdNot(String champion, Long id) throws ProductException {
+        String trimmedChampion = champion.trim();
+        List<Product> products =  productService.findChibiProductBySeriesAndIdNot(trimmedChampion, id);
+        return ProductMapper.INSTANCE.mapList(products);
     }
 
     @Override

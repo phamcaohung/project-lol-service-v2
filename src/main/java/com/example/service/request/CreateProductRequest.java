@@ -1,9 +1,6 @@
 package com.example.service.request;
 
-import com.example.service.model.Champion;
-import com.example.service.model.Color;
-import com.example.service.model.Skill;
-import com.example.service.model.Skin;
+import com.example.service.model.*;
 
 import java.util.Date;
 import java.util.List;
@@ -33,6 +30,7 @@ public class CreateProductRequest {
 
     private Skin skin;
 
+    private Chibi chibi;
 
     public String getDescription() {
         return description;
@@ -128,5 +126,13 @@ public class CreateProductRequest {
 
     public void setSkin(Skin skin) {
         this.skin = skin;
+    }
+
+    public Chibi getChibi() {
+        return chibi;
+    }
+
+    public void setChibi(Chibi chibi) {
+        this.chibi = chibi;
     }
 }

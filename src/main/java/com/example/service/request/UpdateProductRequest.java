@@ -1,6 +1,7 @@
 package com.example.service.request;
 
 import com.example.service.model.Champion;
+import com.example.service.model.Chibi;
 import com.example.service.model.Color;
 import com.example.service.model.Skin;
 
@@ -27,9 +28,13 @@ public class UpdateProductRequest {
 
     private List<Color> color;
 
+    private String category;
+
     private Champion champion;
 
     private Skin skin;
+
+    private Chibi chibi;
 
     public UpdateProductRequest() {
 
@@ -121,5 +126,21 @@ public class UpdateProductRequest {
 
     public void setSkin(Skin skin) {
         this.skin = skin;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Chibi getChibi() {
+        return chibi;
+    }
+
+    public void setChibi(Chibi chibi) {
+        this.chibi = chibi;
     }
 }

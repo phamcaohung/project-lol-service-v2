@@ -22,22 +22,17 @@ public interface ProductService {
 
     Product findProductById(Long id) throws ProductException;
 
-    List<Product> findProductByCategory(String category);
+    Page<ProductDTO> getAllProduct(FilterProductRequest request);
 
-    Page<ProductDTO> getAllProduct(String category, List<String> tier,
-                                   Integer minPrice, Integer maxPrice,
-                                   Integer minDiscount, String sort, String name, String series,
-                                   String stock, Integer pageNumber, Integer pageSize);
+    List<Product> findSkinProductBySeriesAndIdNot(String series, Long id) throws ProductException;
 
-    List<Product> findAllProduct();
+    List<Product> findChampionProductBySeriesAndIdNot(String region, Long id) throws ProductException;
 
-    List<Product> findProductBySeriesAndIdNot(String series, Long id) throws ProductException;
+    List<Product> findChibiProductBySeriesAndIdNot(String champion, Long id) throws ProductException;
 
     List<Product> findProductBySeries(String series) throws ProductException;
 
-    List<String> findAllSeriesName(String series) throws ProductException;
+    List<String> findAllSeriesName(String category) throws ProductException;
 
     List<Product> findNewSkinProduct(String category) throws ProductException;
-
-    Product updateImageFileProduct(Long productId, @RequestParam("file") MultipartFile file) throws ProductException, IOException;
 }

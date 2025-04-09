@@ -14,22 +14,28 @@ public class Champion {
 
     private String role;
 
+    private String imageRole;
+
     private String difficulty;
 
     private String region;
 
-    @OneToMany(mappedBy = "champion", cascade = CascadeType.ALL)
+    private String imageRegion;
+
+    @OneToMany(mappedBy = "champion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Skill> skill = new ArrayList<>();
 
     public Champion() {
     }
 
-    public Champion(Long id, String role, String difficulty, List<Skill> skill, String region) {
+    public Champion(Long id, String role, String difficulty, List<Skill> skill, String region, String imageRole, String imageRegion) {
         this.id = id;
         this.role = role;
         this.difficulty = difficulty;
         this.skill = skill;
         this.region = region;
+        this.imageRegion = imageRegion;
+        this.imageRole = imageRole;
     }
 
     public Long getId() {
@@ -70,5 +76,21 @@ public class Champion {
 
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public String getImageRole() {
+        return imageRole;
+    }
+
+    public void setImageRole(String imageRole) {
+        this.imageRole = imageRole;
+    }
+
+    public String getImageRegion() {
+        return imageRegion;
+    }
+
+    public void setImageRegion(String imageRegion) {
+        this.imageRegion = imageRegion;
     }
 }

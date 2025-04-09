@@ -6,10 +6,14 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "skill")
 public class Skill {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String name;
 
-    private int number;
+    private String keyboard;
 
     private String image;
 
@@ -24,12 +28,13 @@ public class Skill {
     public Skill() {
     }
 
-    public Skill(Long id, String name, String image, String description, Champion champion, int number) {
+    public Skill(Long id, String name, String image, String description, Champion champion, String keyboard) {
         this.name = name;
         this.image = image;
         this.description = description;
         this.champion = champion;
-        this.number = number;
+        this.id = id;
+        this.keyboard = keyboard;
     }
 
     public String getName() {
@@ -64,11 +69,19 @@ public class Skill {
         this.champion = champion;
     }
 
-    public int getNumber() {
-        return number;
+    public Long getId() {
+        return id;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setKeyboard(String keyboard) {
+        this.keyboard = keyboard;
+    }
+
+    public String getKeyboard() {
+        return keyboard;
     }
 }
