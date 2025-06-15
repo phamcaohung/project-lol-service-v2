@@ -2,10 +2,8 @@ package com.example.service.controller;
 
 
 import com.example.service.controller.interfaces.ICartController;
-import com.example.service.dto.CartDTO;
 import com.example.service.exception.ProductException;
 import com.example.service.exception.UserException;
-import com.example.service.mapper.CartMapper;
 import com.example.service.model.Cart;
 import com.example.service.model.User;
 import com.example.service.request.AddItemRequest;
@@ -25,10 +23,9 @@ public class CartController implements ICartController {
     private UserService userService;
 
     @Override
-    public CartDTO findUserCart(String jwt) throws UserException {
+    public Cart findUserCart(String jwt) throws UserException {
         User user = userService.findUserProfileByJwt(jwt);
-        Cart cart = cartService.findUserCart(user.getId());
-        return CartMapper.INSTANCE.map(cart);
+        return cartService.findUserCart(user.getId());
     }
 
     @Override

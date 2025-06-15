@@ -2,7 +2,6 @@ package com.example.service.model;
 
 
 import jakarta.persistence.*;
-import org.mapstruct.Named;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public class Product {
     @Column(name = "can_be_looted")
     private Boolean canBeLooted;
 
-    @Column(length = 500)
+
     private String description;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

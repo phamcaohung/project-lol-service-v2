@@ -9,4 +9,10 @@ public interface AddressService {
     String deleteAddress(Long addressId);
 
     List<Address> getAddressByUser(User user);
+
+    Address editAddress(Long addressId);
+
+    Address createAddress(User user, Address address);
+
+    Address updateUserAddress(Long addressId, Address address);
 }

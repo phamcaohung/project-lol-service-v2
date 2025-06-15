@@ -4,13 +4,15 @@ import com.example.service.exception.OrderException;
 import com.example.service.model.Address;
 import com.example.service.model.Order;
 import com.example.service.model.User;
+import com.example.service.request.AddressRequest;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface OrderService {
-    Order createOrder(User user, Address shippingAddress);
+    Order createOrder(User user, AddressRequest shippingAddress);
 
-    Order findOrderById(Long OrderId) throws OrderException;
+    Order findOrderById(UUID OrderId) throws OrderException;
 
     List<Order> usersOrderHistory(Long userId);
 

@@ -17,13 +17,12 @@ import java.util.stream.Collectors;
 public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
-    @Mapping(source = "imageUpload.url", target = "imageUrl")
     @Mapping(source = "champion.role", target = "role")
     @Mapping(source = "champion.imageRole", target = "imageRole")
     @Mapping(source = "champion.region", target = "region")
     @Mapping(source = "champion.imageRegion", target = "imageRegion")
     @Mapping(expression = "java(product.mapColorToListColor())", target = "colors")
-    @Mapping(expression = "java(product.mapColorToImageColor())", target = "imageColor")
+    @Mapping(expression = "java(product.mapColorToImageColor())", target = "imageUrl")
     @Mapping(expression = "java(product.mapSourceToImageTier())", target = "imageTier")
     @Mapping(expression = "java(product.mapSourceToSeries())", target = "series")
     ProductDTO map(Product product);

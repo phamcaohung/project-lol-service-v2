@@ -17,7 +17,7 @@ import com.paypal.base.rest.PayPalRESTException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-
+import java.util.UUID;
 
 
 @Controller
@@ -35,7 +35,7 @@ public class PaymentController implements IPaymentController {
     private CartService cartService;
 
     @Override
-    public PaymentLinkResponse createPaymentLink(Long orderId, String jwt) throws OrderException, PayPalRESTException {
+    public PaymentLinkResponse createPaymentLink(UUID orderId, String jwt) throws OrderException, PayPalRESTException {
         Order order = orderService.findOrderById(orderId);
 
         try {
@@ -46,7 +46,7 @@ public class PaymentController implements IPaymentController {
     }
 
     @Override
-    public ApiResponse redirect(String paymentId, String token, String payerId, Long orderId, String jwt) throws OrderException, PayPalRESTException, UserException {
+    public ApiResponse redirect(String paymentId, String token, String payerId, UUID orderId, String jwt) throws OrderException, PayPalRESTException, UserException {
         User user = userService.findUserProfileByJwt(jwt);
         Cart cart = cartService.findUserCart(user.getId());
         Order order = orderService.findOrderById(orderId);

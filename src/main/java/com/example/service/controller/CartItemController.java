@@ -1,12 +1,7 @@
 package com.example.service.controller;
 
 import com.example.service.controller.interfaces.ICartItemController;
-import com.example.service.dto.CartItemDTO;
 import com.example.service.exception.CartItemException;
-import com.example.service.exception.UserException;
-import com.example.service.mapper.CartItemMapper;
-import com.example.service.model.CartItem;
-import com.example.service.model.User;
 import com.example.service.response.ApiResponse;
 import com.example.service.service.implementation.CartItemService;
 import com.example.service.service.implementation.UserService;
@@ -22,20 +17,22 @@ public class CartItemController implements ICartItemController {
     private CartItemService cartItemService;
 
     @Override
-    public ApiResponse deleteCartItem(Long cartItemId, String jwt) throws UserException, CartItemException {
-        User user = userService.findUserProfileByJwt(jwt);
-        cartItemService.removeCartItem(user.getId(), cartItemId);
+    public ApiResponse deleteCartItem(Long cartItemId) throws CartItemException {
+        cartItemService.removeCartItem(cartItemId);
 
         ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setMessage("delete cart item successfully");
+        apiResponse.setMessage("Delete Cart Item Successfully");
         apiResponse.setStatus(true);
         return apiResponse;
     }
 
     @Override
-    public CartItemDTO updateCartItem(CartItem cartItem, Long cartItemId, String jwt) throws UserException, CartItemException {
-        User user = userService.findUserProfileByJwt(jwt);
-        CartItem cart_item = cartItemService.updateCartItem(user.getId(), cartItemId, cartItem);
-        return CartItemMapper.INSTANCE.map(cart_item);
+    public ApiResponse updateCartItem(int quantity, Long cartItemId) throws CartItemException {
+        cartItemService.updateCartItem(cartItemId, quantity);
+
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setMessage("Update Quantity Successfully");
+        apiResponse.setStatus(true);
+        return apiResponse;
     }
 }

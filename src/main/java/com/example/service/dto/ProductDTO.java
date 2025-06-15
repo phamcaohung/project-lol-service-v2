@@ -13,8 +13,6 @@ public class ProductDTO {
 
     private String imageUrl;
 
-    private String imageColor;
-
     private String imageTier;
 
     private String title;
@@ -115,14 +113,6 @@ public class ProductDTO {
 
     public void setSeries(String series) {
         this.series = series;
-    }
-
-    public String getImageColor() {
-        return imageColor;
-    }
-
-    public void setImageColor(String imageColor) {
-        this.imageColor = imageColor;
     }
 
     public Date getReleaseDate() {

@@ -31,48 +31,27 @@ public class CartItemImplementation implements CartItemService {
         this.cartRepository = cartRepository;
         this.userService = userService;
     }
-    @Override
-    public CartItem createCartItem(CartItem cartItem) {
-        cartItem.setQuantity(1);
-        cartItem.setPrice(cartItem.getProduct().getPrice() * cartItem.getQuantity());
-        cartItem.setDiscountedPrice(cartItem.getProduct().getDiscountedPrice() * cartItem.getQuantity());
-
-        return cartItemRepository.save(cartItem);
-    }
 
     @Override
-    public CartItem updateCartItem(Long userId, Long id, CartItem cartItem) throws CartItemException, UserException {
+    public CartItem updateCartItem(Long id, int quantity) throws CartItemException {
         CartItem item = findCartItemById(id);
-        User user = userService.findUserById(item.getUserId());
+        item.setQuantity(quantity);
+        item.setPrice(item.getQuantity() * item.getProduct().getPrice());
+        item.setDiscountedPrice(item.getProduct().getDiscountedPrice() * item.getQuantity());
 
-        if (user.getId().equals(userId)) {
-            item.setQuantity(cartItem.getQuantity());
-            item.setPrice(item.getQuantity() * item.getProduct().getPrice());
-            item.setDiscountedPrice(item.getProduct().getDiscountedPrice() * item.getQuantity());
-        }
         return cartItemRepository.save(item);
     }
 
     @Override
-    public CartItem isCartItemExist(Cart cart, Product product, String color, Long userId) {
-        return cartItemRepository.isCartItemExist(cart, product, color, userId);
+    public CartItem isCartItemExist(Cart cart, Product product, String nameColor) {
+        return cartItemRepository.isCartItemExist(cart, product, nameColor);
     }
 
     @Override
-    public String removeCartItem(Long userId, Long cartItemId) throws CartItemException, UserException {
+    public String removeCartItem(Long cartItemId) throws CartItemException {
         CartItem cartItem = findCartItemById(cartItemId);
-
-        User user = userService.findUserById(cartItem.getUserId());
-
-        User reqUser = userService.findUserById(userId);
-
-        if (user.getId().equals(reqUser.getId())) {
-            cartItemRepository.deleteById(cartItemId);
-            return "Deleted Cart Item Successfully";
-        }
-        else {
-            throw new UserException("You can't remove another users item");
-        }
+        cartItemRepository.deleteById(cartItemId);
+        return "Deleted Cart Item Successfully";
     }
 
     @Override

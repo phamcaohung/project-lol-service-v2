@@ -34,9 +34,8 @@ public class Address {
 
     private String mobile;
 
-    private String status;
 
-    public Address(Long id, String firstName, String lastName, String streetAddress, String city, String state, String zipCode, User user, String mobile, String status) {
+    public Address(Long id, String firstName, String lastName, String streetAddress, String city, String state, String zipCode, User user, String mobile) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -46,7 +45,6 @@ public class Address {
         this.zipCode = zipCode;
         this.user = user;
         this.mobile = mobile;
-        this.status = status;
     }
 
     public Address() {
@@ -125,11 +123,4 @@ public class Address {
         this.mobile = mobile;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

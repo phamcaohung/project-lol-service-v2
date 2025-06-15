@@ -15,39 +15,52 @@ public class OrderItem {
 
     @JsonIgnore
     @ManyToOne
-    private Order order;
-
-    @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 
-    private String color;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
-    private String imageColor;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+    private String name;
 
     private int quantity;
 
-    private Integer price;
+    private String imageUrl;
 
-    private Integer discountedPrice;
+    private String imageColor;
 
-    private Long userId;
+    private String nameColor;
 
-    private LocalDateTime deliveryDate;
+    private String color;
 
-    public OrderItem() {
+    private int price;
 
-    }
+    private int discountedPrice;
 
-    public OrderItem(Long id, Order order, Product product, String color, int quantity, Integer price, Integer discountedPrice, Long userId, LocalDateTime deliveryDate, String imageColor) {
+    private int discountPercent;
+
+    public OrderItem() {}
+
+    public OrderItem(Long id, Product product, Category category, Order order, String name, int quantity, String imageUrl, String imageColor, String nameColor, String color, int price, int discountedPrice, int discountPercent) {
         this.id = id;
-        this.order = order;
         this.product = product;
-        this.color = color;
+        this.category = category;
+        this.order = order;
+        this.name = name;
         this.quantity = quantity;
+        this.imageUrl = imageUrl;
+        this.imageColor = imageColor;
+        this.nameColor = nameColor;
+        this.color = color;
         this.price = price;
         this.discountedPrice = discountedPrice;
-        this.userId = userId;
-        this.deliveryDate = deliveryDate;
+        this.discountPercent = discountPercent;
     }
 
     public Long getId() {
@@ -58,14 +71,6 @@ public class OrderItem {
         this.id = id;
     }
 
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
     public Product getProduct() {
         return product;
     }
@@ -74,12 +79,28 @@ public class OrderItem {
         this.product = product;
     }
 
-    public String getColor() {
-        return color;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getQuantity() {
@@ -90,36 +111,12 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public Integer getPrice() {
-        return price;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public Integer getDiscountedPrice() {
-        return discountedPrice;
-    }
-
-    public void setDiscountedPrice(Integer discountedPrice) {
-        this.discountedPrice = discountedPrice;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public LocalDateTime getDeliveryDate() {
-        return deliveryDate;
-    }
-
-    public void setDeliveryDate(LocalDateTime deliveryDate) {
-        this.deliveryDate = deliveryDate;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getImageColor() {
@@ -128,5 +125,45 @@ public class OrderItem {
 
     public void setImageColor(String imageColor) {
         this.imageColor = imageColor;
+    }
+
+    public String getNameColor() {
+        return nameColor;
+    }
+
+    public void setNameColor(String nameColor) {
+        this.nameColor = nameColor;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getDiscountedPrice() {
+        return discountedPrice;
+    }
+
+    public void setDiscountedPrice(int discountedPrice) {
+        this.discountedPrice = discountedPrice;
+    }
+
+    public int getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(int discountPercent) {
+        this.discountPercent = discountPercent;
     }
 }

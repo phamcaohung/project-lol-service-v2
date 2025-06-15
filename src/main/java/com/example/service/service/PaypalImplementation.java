@@ -60,7 +60,7 @@ public class PaypalImplementation implements PaypalService {
 
         Amount amount = new Amount();
         amount.setCurrency("USD");
-        amount.setTotal(String.valueOf(order.getTotalPrice()/10));
+        amount.setTotal(String.valueOf(order.getTotalPrice()/100));
 
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
@@ -70,8 +70,8 @@ public class PaypalImplementation implements PaypalService {
         payer.setPaymentMethod("paypal");
 
         RedirectUrls redirectUrls = new RedirectUrls();
-        redirectUrls.setReturnUrl("http://localhost:3000/payment/" + order.getId());
-        redirectUrls.setCancelUrl("http://localhost:3000/payment/" + order.getId() + "/cancel");
+        redirectUrls.setReturnUrl("http://localhost:3000/payment/" + order.getPublicId());
+        redirectUrls.setCancelUrl("http://localhost:3000/payment/" + order.getPublicId() + "/cancel");
 
         Payment payment = new Payment();
         payment.setIntent("sale");
@@ -109,6 +109,7 @@ public class PaypalImplementation implements PaypalService {
             order.getPaymentDetails().setStatus("COMPLETED");
             order.getPaymentDetails().setToken(token);
             order.getPaymentDetails().setPayerId(payerId);
+            order.getPaymentDetails().setPaymentMethod(payment.getPayer().getPaymentMethod());
             order.setOrderStatus("PLACED");
             orderRepository.save(order);
 

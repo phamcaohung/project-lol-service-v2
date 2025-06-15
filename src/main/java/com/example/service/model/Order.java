@@ -2,10 +2,12 @@ package com.example.service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -14,41 +16,47 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @GeneratedValue
+    private UUID publicId;
+
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItem = new ArrayList<>();
 
     private LocalDateTime orderDate;
 
     private LocalDateTime deliveryDate;
 
-    @ManyToOne
-    @JoinColumn(name = "address_id")
-    private Address shippingAddress;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_order_id")
+    private AddressOrder shippingAddress;
 
-    @Embedded
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_detail_id")
     private PaymentDetails paymentDetails = new PaymentDetails();
 
     private double totalPrice;
 
     private Integer totalDiscountedPrice;
 
-    private Integer discounted;
-
     private String orderStatus;
 
     private int totalItem;
 
-    private LocalDateTime createAt;
+    private String note;
+
 
     public Order() {
 
     }
 
-    public Order(Long id, User user, List<OrderItem> orderItem, LocalDateTime orderDate, LocalDateTime deliveryDate, Address shippingAddress, PaymentDetails paymentDetails, double totalPrice, Integer totalDiscountedPrice, Integer discounted, String orderStatus, int totalItem, LocalDateTime createAt) {
+    public Order(Long id,UUID publicId ,User user, List<OrderItem> orderItem, LocalDateTime orderDate, LocalDateTime deliveryDate, AddressOrder shippingAddress, PaymentDetails paymentDetails, double totalPrice, Integer totalDiscountedPrice, String orderStatus, int totalItem, String note) {
         this.id = id;
+        this.publicId = publicId;
         this.user = user;
         this.orderItem = orderItem;
         this.orderDate = orderDate;
@@ -57,10 +65,9 @@ public class Order {
         this.paymentDetails = paymentDetails;
         this.totalPrice = totalPrice;
         this.totalDiscountedPrice = totalDiscountedPrice;
-        this.discounted = discounted;
         this.orderStatus = orderStatus;
         this.totalItem = totalItem;
-        this.createAt = createAt;
+        this.note = note;
     }
 
     public Long getId() {
@@ -103,11 +110,11 @@ public class Order {
         this.deliveryDate = deliveryDate;
     }
 
-    public Address getShippingAddress() {
+    public AddressOrder getShippingAddress() {
         return shippingAddress;
     }
 
-    public void setShippingAddress(Address shippingAddress) {
+    public void setShippingAddress(AddressOrder shippingAddress) {
         this.shippingAddress = shippingAddress;
     }
 
@@ -135,14 +142,6 @@ public class Order {
         this.totalDiscountedPrice = totalDiscountedPrice;
     }
 
-    public Integer getDiscounted() {
-        return discounted;
-    }
-
-    public void setDiscoute(Integer discounted) {
-        this.discounted = discounted;
-    }
-
     public String getOrderStatus() {
         return orderStatus;
     }
@@ -159,11 +158,25 @@ public class Order {
         this.totalItem = totalItem;
     }
 
-    public LocalDateTime getCreateAt() {
-        return createAt;
+    public UUID getPublicId() {
+        return publicId;
     }
 
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
+    public void setPublicId(UUID publicId) {
+        this.publicId = publicId;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    @PrePersist
+    public void generatePublicId() {
+        if (publicId == null)
+            publicId = UUID.randomUUID();
     }
 }

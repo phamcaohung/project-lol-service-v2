@@ -7,13 +7,12 @@ import com.example.service.model.CartItem;
 import com.example.service.model.Product;
 
 public interface CartItemService{
-    CartItem createCartItem(CartItem cartItem);
 
-    CartItem updateCartItem(Long userId, Long id, CartItem cartItem) throws CartItemException, UserException;
+    CartItem updateCartItem(Long id, int quantity) throws CartItemException;
 
-    CartItem isCartItemExist(Cart cart, Product product, String color, Long userId);
+    CartItem isCartItemExist(Cart cart, Product product, String nameColor);
 
-    String removeCartItem(Long userId, Long cartItemId) throws CartItemException, UserException;
+    String removeCartItem(Long cartItemId) throws CartItemException;
 
     CartItem findCartItemById(Long cartItemId) throws CartItemException;
 }

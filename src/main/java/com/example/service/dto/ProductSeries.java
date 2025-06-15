@@ -7,8 +7,6 @@ public class ProductSeries {
 
     private String imageUrl;
 
-    private String imageColor;
-
     private String imageTier;
 
     private String title;
@@ -79,11 +77,4 @@ public class ProductSeries {
         ReleaseDate = releaseDate;
     }
 
-    public String getImageColor() {
-        return imageColor;
-    }
-
-    public void setImageColor(String imageColor) {
-        this.imageColor = imageColor;
-    }
 }

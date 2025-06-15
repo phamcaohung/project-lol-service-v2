@@ -13,6 +13,6 @@ import java.util.List;
 public interface AddressRepository extends JpaRepository<Address, Long> {
     Address findAddressById(Long id);
 
-    List<Address> findAddressByUserAndStatusNot(User user, String status);
+    List<Address> findAddressByUser(User user);
 
 }

@@ -14,9 +14,8 @@ import java.util.List;
 public interface ProductSeriesMapper {
     ProductSeriesMapper INSTANCE = Mappers.getMapper(ProductSeriesMapper.class);
 
-    @Mapping(source = "imageUpload.url", target = "imageUrl")
     @Mapping(expression = "java(product.mapSourceToSeries())", target = "series")
-    @Mapping(expression = "java(product.mapColorToImageColor())", target = "imageColor")
+    @Mapping(expression = "java(product.mapColorToImageColor())", target = "imageUrl")
     @Mapping(expression = "java(product.mapSourceToImageTier())", target = "imageTier")
     ProductSeries map(Product product);
 

@@ -7,6 +7,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -18,4 +20,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                     "OR o.orderStatus = 'DELIVERED')"
     )
     List<Order> getUsersOrders(@Param("userId") Long userId);
+
+    List<Order> getOrderByUserId(Long userId);
+
+    Optional<Order> findOrderByPublicId(UUID uuid);
 }

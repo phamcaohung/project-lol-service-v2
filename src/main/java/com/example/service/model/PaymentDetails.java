@@ -1,6 +1,17 @@
 package com.example.service.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity(name = "payment_detail")
 public class PaymentDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String paymentMethod;
 
     private String status;
@@ -16,7 +27,8 @@ public class PaymentDetails {
 
     }
 
-    public PaymentDetails(String paymentMethod, String status, String paymentId, String token, String payerId) {
+    public PaymentDetails(Long id, String paymentMethod, String status, String paymentId, String token, String payerId) {
+        this.id = id;
         this.paymentMethod = paymentMethod;
         this.status = status;
         this.paymentId = paymentId;
@@ -62,5 +74,13 @@ public class PaymentDetails {
 
     public void setPayerId(String payerId) {
         this.payerId = payerId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
